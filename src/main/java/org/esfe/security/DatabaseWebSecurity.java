@@ -35,12 +35,21 @@ public class DatabaseWebSecurity {
                 // las vistas públicas no requieren autenticación
                 .requestMatchers("/", "/privacy", "/terms").permitAll()
 
+                // Asignar permisos a URLs por ROLES
+                .requestMatchers("/grupos/**").hasAnyAuthority("admin")
+                .requestMatchers("/docentes/**").hasAnyAuthority("admin")
+                .requestMatchers("/asignaciones/**").hasAnyAuthority("admin")
+                .requestMatchers("/alumnos/**").hasAnyAuthority("admin", "docente")
+
                 // todas las demás vistas requieren autenticación
                 .anyRequest().authenticated());
-        http.formLogin(form -> form.permitAll());
+        http.formLogin(form -> form.loginPage("/login").permitAll());
 
         return http.build();
     }
 
-
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
